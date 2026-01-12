@@ -1,9 +1,16 @@
 from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import Session, sessionmaker
 
 from utils import DATABASE_URL
 
 engine = create_engine(DATABASE_URL)
-Session = sessionmaker(autoflush=False, auto=False, bind=engine)
-Base = declarative_base()
+session = sessionmaker(autoflush=False, bind=engine)
+
+
+def get_db():
+    """yeilds an instance of the db and closes it afterwards."""
+    db = Session()
+    try:
+        yield db
+    finally:
+        db.close()
