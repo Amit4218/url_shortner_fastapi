@@ -1,4 +1,6 @@
-from .database import Session, engine, get_db
+from sqlalchemy.orm import Session
+
+from .database import engine, get_db
 
 __all__ = [
     "Session",
