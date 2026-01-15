@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime
 
-from sqlalchemy import Boolean, Column, DateTime, ForeignKey, String
+from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql.sqltypes import UUID
 
@@ -14,7 +14,7 @@ class User(Base):
     id = Column(
         UUID(as_uuid=True),
         primary_key=True,
-        default=uuid.uuid4(),
+        default=uuid.uuid4,
         index=True,
         unique=True,
         nullable=False,
@@ -28,7 +28,7 @@ class User(Base):
     username = Column(String(), nullable=False)
     password = Column(String(), nullable=False)
     is_deleted = Column(Boolean, default=False)
-    created_at = Column(DateTime(), default=datetime.now(), nullable=False)
+    created_at = Column(DateTime(), default=datetime.now, nullable=False)
 
     # relation to urls: 1 -> M
 
@@ -41,14 +41,15 @@ class Urls(Base):
     id = Column(
         UUID(as_uuid=True),
         primary_key=True,
-        default=uuid.uuid4(),
+        default=uuid.uuid4,
         index=True,
         unique=True,
         nullable=False,
     )
     original_url = Column(String(), nullable=False)
-    short_url = Column(String(), nullable=False, index=True)
-    created_at = Column(DateTime(), default=datetime.now(), nullable=False)
+    short_url = Column(String(), nullable=False, unique=True, index=True)
+    total_requests = Column(Integer(), nullable=False, default=0)
+    created_at = Column(DateTime(), default=datetime.now, nullable=False)
 
     # connects back to user: M -> 1
 
@@ -71,15 +72,14 @@ class UrlLogs(Base):
     id = Column(
         UUID(as_uuid=True),
         primary_key=True,
-        default=uuid.uuid4(),
+        default=uuid.uuid4,
         index=True,
         unique=True,
         nullable=False,
     )
     requested_url = Column(String(), nullable=False)
     requested_by = Column(String(), nullable=False)
-    total_requests = Column(String(), nullable=False)
-    requested_at = Column(DateTime(), default=datetime.now(), nullable=False)
+    requested_at = Column(DateTime(), default=datetime.now, nullable=False)
 
     url_id = Column(
         UUID(as_uuid=True),
