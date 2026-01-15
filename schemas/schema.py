@@ -14,4 +14,3 @@ class RegisterUserSchema(BaseModel):
 
 class UrlSchema(BaseModel):
     original_url: str
-    short_url: str
