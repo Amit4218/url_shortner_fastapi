@@ -5,11 +5,14 @@ from sqlalchemy.orm import Session
 
 from config import engine, get_db
 from core import (
+    get_current_stats,
     get_current_user,
     get_redirect_url,
+    get_temp_url_redirect,
     get_url_metadata,
     login_user,
     register_user,
+    save_temp_url,
     save_url,
 )
 from models import User
@@ -25,7 +28,9 @@ from utils import ENV, FRONTEND_URL, Base, generate_unique_url
 is_production = False if ENV == "DEV" else True
 
 
-app = FastAPI(title="url_shortner backend", openapi_url=None, redoc_url=None)
+app = FastAPI(
+    title="url_shortner backend",
+)
 Base.metadata.create_all(bind=engine)
 
 app.add_middleware(
@@ -87,11 +92,42 @@ async def short_url(
     )
 
 
+@app.post("/short_temp_url", response_model=ResponseSchema)
+async def short_temp_url(
+    data: UrlSchema,
+    db: Session = Depends(get_db),
+):
+    unique_url = generate_unique_url(db=db)
+
+    url = save_temp_url(
+        db=db,
+        original_url=data.original_url,
+        unique_url=unique_url,
+    )
+
+    return ResponseSchema(
+        status=201,
+        message="short url Created successfully",
+        data=url,
+    )
+
+
 @app.get("/r/{short_url}", response_model=ResponseSchema)
 async def get_original_url(
     short_url: str, request: Request, db: Session = Depends(get_db)
-) -> ResponseSchema:
+):
     original_url = get_redirect_url(db=db, url=short_url, request_obj=request)
+
+    return ResponseSchema(
+        status=200, message="success", data={"original_url": original_url}
+    )
+
+
+@app.get("/t/{short_url}", response_model=ResponseSchema)
+async def get_temp_original_url(
+    short_url: str, request: Request, db: Session = Depends(get_db)
+):
+    original_url = get_temp_url_redirect(db=db, url=short_url)
 
     return ResponseSchema(
         status=200, message="success", data={"original_url": original_url}
@@ -105,3 +141,10 @@ async def get_metadata(
     data = get_url_metadata(db=db, user_id=str(current_user.id))
 
     return ResponseSchema(status=200, message="data fetched successfully", data=data)
+
+
+@app.get("/stats", response_model=ResponseSchema)
+async def get_stats(db: Session = Depends(get_db)):
+    data = get_current_stats(db=db)
+
+    return ResponseSchema(status=200, message="stats fetched successfully", data=data)
