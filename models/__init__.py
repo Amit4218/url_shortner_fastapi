@@ -1,3 +1,3 @@
-from .model import UrlLogs, Urls, User
+from .model import NotRegisteredUrls, UrlLogs, Urls, User
 
-__all__ = ["User", "Urls", "UrlLogs"]
+__all__ = ["User", "Urls", "UrlLogs", "NotRegisteredUrls"]

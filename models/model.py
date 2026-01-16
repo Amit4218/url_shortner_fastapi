@@ -86,3 +86,20 @@ class UrlLogs(Base):
         ForeignKey("urls.id", onupdate="CASCADE", ondelete="CASCADE"),
     )
     url = relationship("Urls", back_populates="url_logs")
+
+
+class NotRegisteredUrls(Base):
+    __tablename__ = "unregistered_urls"
+
+    id = Column(
+        UUID(as_uuid=True),
+        primary_key=True,
+        default=uuid.uuid4,
+        index=True,
+        unique=True,
+        nullable=False,
+    )
+    original_url = Column(String(), nullable=False)
+    short_url = Column(String(), nullable=False, unique=True, index=True)
+    total_requests = Column(Integer(), nullable=False, default=0)
+    created_at = Column(DateTime(), default=datetime.now, nullable=False)
